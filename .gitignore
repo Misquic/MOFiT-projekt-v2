@@ -1,0 +1,31 @@
+#executables
+*.exe
+
+#files with data
+*.vti
+*.mp4
+
+#files for testing
+test.cpp
+
+#files with ParaView config
+*.pvsm
+
+#files with notes
+*.txt
+
+#folders for zipping and sending
+send/
+*.zip
+
+#folders with data for debugging
+results_old/
+results_debug/
+
+#folders with ParaView results
+animations/
+
+#folders with vscode config
+.vscode/
+
+
