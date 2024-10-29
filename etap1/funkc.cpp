@@ -127,7 +127,7 @@ float g(float eps1, float eps2, int i_wewn){
         return f2(eps1)*f2(eps2);
         break;
     default:
-        throw std::out_of_range("i_wewn out of range");
+        throw std::out_of_range("g i_wewn out of range");
         break;
     }
 };
@@ -156,9 +156,7 @@ float calcPsi(float x, float y, const Parameters& pm){
 };
 
 float s_ji(int j, int i, const Parameters& pm){
-    
     float suma = 0;
-    
     for(int l = 1; l <= 3; l++){
         for(int n = 1; n <= 3; n++){
 
@@ -167,9 +165,8 @@ float s_ji(int j, int i, const Parameters& pm){
             };
         };
 
-        float s_ij_value = (pm.a*pm.a/4)*suma;
 
-    return s_ij_value;
+    return suma * (pm.a*pm.a/4);
     };
 
 float t_ji(int j, int i, const Parameters& pm){
@@ -180,7 +177,7 @@ float t_ji(int j, int i, const Parameters& pm){
             };
         };
 
-    return suma /pm.m; 
+    return suma / pm.m; 
 };
 float dgdksi(int i, int l, int n, const Parameters& pm){
     return (g(pm.p[l],pm.p[n] + pm.d_ksi, i) - g(pm.p[l],pm.p[n] - pm.d_ksi, i))/(2*pm.d_ksi);

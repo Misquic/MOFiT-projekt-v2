@@ -21,23 +21,31 @@ int main(int argc, char* argv[]){
     
     //macierz przekrywania
     std::vector<std::vector<float>> s = std::vector<std::vector<float>>(4, std::vector<float>(4));
+    //macierz hamiltona
     std::vector<std::vector<float>> t = std::vector<std::vector<float>>(4, std::vector<float>(4));
+    //macierz en pot 
     std::vector<std::vector<float>> v = std::vector<std::vector<float>>(4, std::vector<float>(4));
-    // for(int j = 0; j < 4; j++){
-    //     for(int i = 0; i < )
-    // }
+    for(int j = 1; j <= 4; j++){
+        for(int i = 1; i <= 4; i++){
+            s[j-1][i-1] = s_ji(j,i,pm);
+            t[j-1][i-1] = t_ji(j,i,pm);
+            v[j-1][i-1] = v_ji(j,i, 11, pm);
+        }
+    }
+    std::cout << "s: \n" << s*(4.0/pm.a/pm.a*9.0);
+    std::cout << "t: \n" << t*(6.0*2.0*pm.m);
+    std::cout << "v: \n" << v*(8.0/pm.a/pm.a/pm.m/pm.omega/pm.omega);
  
 
 
 
-    //macierz hamiltona
 
     
 
     
 
     std::vector<Element> els = elements.getElements();
-    std::cout << elements;
+    //std::cout << elements;
 
     std::string file_name = "./results/results2.csv";
     std::ofstream file;

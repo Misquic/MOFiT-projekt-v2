@@ -16,7 +16,7 @@ public:
     float m = 0.067;
     const float anm; 
     const float a; 
-    const std::vector<float> w = {5/9, 8/9, 5/9};
+    const std::vector<float> w = {5.0/9.0, 8.0/9.0, 5.0/9.0};
     const std::vector<float> p = {-sqrtf(3.0/5.0), 0, sqrtf(3.0/5.0)};
 
     Parameters(int N, float Lnm);
