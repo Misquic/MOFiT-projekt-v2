@@ -9,12 +9,14 @@
 
 class Node{
 private:
-    std::vector<float> pos; //realna pozycja wezla
+    std::vector<float> pos;  //realna pozycja wezla
+    int const          N  ;  // N
+
 public:
     const int name;                           //nazwa wezla
-    Node (int name, std::vector<float> pos);  //zwykly konstruktor
-    Node (const Node& other);                 //konstruktor kopiujący
-    Node (Node&& other);                      //konstruktor przenoszący (na wszelki wypadek)
+    Node (int name, std::vector<float> pos, int N);  //zwykly konstruktor
+    // Node (const Node& other);                 //konstruktor kopiujący
+    // Node (Node&& other);                      //konstruktor przenoszący (na wszelki wypadek)
     
     // Node& operator=(const Node& other);
     // Node& operator=(Node&& other);
@@ -33,14 +35,15 @@ std::ostream& operator<<(std::ostream& out, const Node node); //do wypisywania, 
 
 class Element{
 private:
-    std::vector<Node> nodes;  // kontener na wezly stowarzyszone z elementem(komorka), w element posiada 4 wezly
-    float             anm;    // bok elemetu w nm //musi byc zadeklarowany przed L, bo taka konwencja w konstruktorach
-    float             a;      // bok elementu, moze sie przyda tu
+    std::vector<Node> nodes;                // kontener na wezly stowarzyszone z elementem(komorka), w element posiada 4 wezly
+    float             anm;                  // bok elemetu w nm //musi byc zadeklarowany przed L, bo taka konwencja w konstruktorach
+    float             a;                    // bok elementu, moze sie przyda tu
+    const int         N;                    // N
 public:
     const   int name;                           // numer/nazwa elementu
-    Element(int name, float anm = Const::anm);  //zwykly konstruktor
-    Element(const Element& other);              //konstruktor kopiujacy
-    Element(Element&& other);                   // konstruktor przenoszacy w ramach dobrego programowania
+    Element(int name, float anm, int N);  //zwykly konstruktor
+    // Element(const Element& other);              //konstruktor kopiujacy
+    // Element(Element&& other);                   // konstruktor przenoszacy w ramach dobrego programowania
 
     //TODO
     // Element& operator=(const Element& other);

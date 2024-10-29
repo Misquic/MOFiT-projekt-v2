@@ -1,13 +1,13 @@
 #include "Elements.h"
 #include "funkc.h"
 
-Node::Node(int name, std::vector<float> pos): name{name}, pos{pos}{
+Node::Node(int name, std::vector<float> pos, int N): name{name}, pos{pos}, N{N}{
 };
-Node::Node(const Node& other): name{other.name}, pos{other.pos}{
-};  
-Node::Node(Node&& other): name{other.name}, pos{std::move(other.pos)}{
-    other.pos.clear();
-};
+// Node::Node(const Node& other): name{other.name}, pos{other.pos}{
+// };  
+// Node::Node(Node&& other): name{other.name}, pos{std::move(other.pos)}{
+//     other.pos.clear();
+// };
 
 // Node& Node::operator=(const Node& other){
 //     name = other.name;
@@ -41,22 +41,22 @@ float Node::getPos(int i) const{
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Element::Element(int name, float anm): name{name}, anm{anm}, a{anm*Const::nm_au}{
+Element::Element(int name, float anm, int N): name{name}, anm{anm}, a{anm*Const::nm_au}, N{N}{
     //numer kom do wezlow
     nodes.reserve(4);
     std::vector<float> pos(2);
-
+    
     for(int i = 1; i <=4; i++){
-        pos = i_kom_i_wewn2pos(this->name, i);
-        nodes.emplace_back(nlg_fun(this->name, i), pos);
+        pos = i_kom_i_wewn2pos(this->name, i, Const::L, a, N);
+        nodes.emplace_back(nlg_fun(this->name, i, N), pos, N);
     }
 };
 
-Element::Element(const Element& other): name{other.name}, anm{other.anm}, a{other.anm*Const::nm_au}, nodes{other.nodes}{
-};
-Element::Element(Element&& other): name{other.name}, anm{other.anm}, a{other.anm*Const::nm_au}, nodes{std::move(other.nodes)}{
-    other.nodes.clear();
-};
+// Element::Element(const Element& other): name{other.name}, anm{other.anm}, a{other.anm*Const::nm_au}, nodes{other.nodes}{
+// };
+// Element::Element(Element&& other): name{other.name}, anm{other.anm}, a{other.anm*Const::nm_au}, nodes{std::move(other.nodes)}{
+//     other.nodes.clear();
+// };
 // Element& Element::operator=(const Element& other){
 //     name = other.name;
 //     anm = other.anm;
@@ -90,11 +90,12 @@ float Element::getAnm() const{
 std::vector<Node> Element::getNodes() const{
     return nodes;
 };
-Node Element::getNode(int i) const{
+Node Element::getNode(int i) const{ //programer numeration
     return nodes[i];
 };
 
 std::ostream& operator<<(std::ostream& out, const Element element){
+    out << "el: " << element.name << "\n";
     for(int i_wewn = 1; i_wewn <= element.getNodes().size(); i_wewn++ ){
         out << "iw: " << i_wewn << " " << element.getNode(i_wewn-1) << " ";
     }
@@ -108,7 +109,7 @@ Elements::Elements(int N, float Lnm): N{N}, Lnm{Lnm}, L{Lnm*Const::nm_au}{
     elements.reserve(4*N*N);
 
     for(int i = 1; i <= 4*N*N; i++){
-        elements.emplace_back(i, Lnm/(2*N));
+        elements.emplace_back(i, Lnm/(2*N), N);
     }
 
 };

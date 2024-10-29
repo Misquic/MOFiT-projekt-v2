@@ -22,16 +22,16 @@
 float nm2au(float nm);  //do konwersji nm na jednostki atomowe
 float eV2au(float eV);  //do konwersji eV na jednostki atomowe
 
-int nlg_fun(int i_kom, int i_wewn, int N = Const::N); //funkcja bazowa zadania do konwersji i_kom i_wewn KOMORKI na nazwe wezla, bedzie przydatna do obliczen, mozna by nazwac i_kom_iwewn2node_name
+int nlg_fun(int i_kom, int i_wewn, int N); //funkcja bazowa zadania do konwersji i_kom i_wewn KOMORKI na nazwe wezla, bedzie przydatna do obliczen, mozna by nazwac i_kom_iwewn2node_name
 
-int index_kom2i_kom(int i, int j, int N = Const::N); //do konwersji indeksów tablicy KOMORKI na i_komorki KOMORKI
+int index_kom2i_kom(int i, int j, int N); //do konwersji indeksów tablicy KOMORKI na i_komorki KOMORKI
 /* i,j 0,1 0,2    3 6 9
    1,0 1,1 1,2 -> 2 5 8
    2,0 2,1 2,2    1 4 7*/
-int index_node2node_name(int i, int j, int N = Const::N); //do konwersji indexów tablicy WEZLOW na nazwe WEZLA
+int index_node2node_name(int i, int j, int N); //do konwersji indexów tablicy WEZLOW na nazwe WEZLA
 
-std::vector<int> i_kom_i_wewn2index_kom(int i_kom, int i_wewn, int N = Const::N); //do konwersji i_kom i_wewn KOMORKI na indexy tablicowe KOMOREK
-std::vector<float> i_kom_i_wewn2pos(int i_kom, int i_wewn, float Lnm = Const::Lnm, float anm = Const::anm); //do konwersji i_kom i_wewn KOMORKI na pozyzje WEZLA
+std::vector<int> i_kom_i_wewn2index_kom(int i_kom, int i_wewn, int N); //do konwersji i_kom i_wewn KOMORKI na indexy tablicowe KOMOREK
+std::vector<float> i_kom_i_wewn2pos(int i_kom, int i_wewn, float L, float a, int N); //do konwersji i_kom i_wewn KOMORKI na pozyzje WEZLA
 
 float g(float eps1, float eps2, int i);
 float f1(float x);

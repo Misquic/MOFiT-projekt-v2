@@ -21,7 +21,7 @@ int nlg_fun(int i_kom, int i_wewn, int N){ //zwraca numer wezla globalnie z nume
         return i_kom;
         break;
     case 2:
-        if(float(i_kom)/(N*N) > (2*N-1) ){
+        if(float(i_kom)/(2*N) > (2*N-1) ){//skrajny prawy
             return i_kom + 2*(2*N);
         }
         return i_kom + (2*N);
@@ -33,7 +33,7 @@ int nlg_fun(int i_kom, int i_wewn, int N){ //zwraca numer wezla globalnie z nume
         return i_kom + 1;
         break;
     case 4:
-        if(float(i_kom)/(N*N) > (2*N-1) ){
+        if(float(i_kom)/(2*N) > (2*N-1) ){
             return i_kom + 2*(2*N) + 1;
         }
         if( i_kom%(2*N) == 0){
@@ -104,21 +104,21 @@ std::vector<int> i_kom_i_wewn2index_kom(int i_kom, int i_wewn, int N){
 
 int index_node2node_name(int i, int j, int N){
     if(i!=2*N && j != 2*N){
-        return nlg_fun(index_kom2i_kom(i, j, N), 3);
+        return nlg_fun(index_kom2i_kom(i, j, N), 3, N);
     }
     if(i == 2*N && j!= 2*N){
-        return nlg_fun(index_kom2i_kom(i-1, j, N), 1);
+        return nlg_fun(index_kom2i_kom(i-1, j, N), 1, N);
     }
     if( i!=0 && j == 2*N){
-        return nlg_fun(index_kom2i_kom(i-1, j-1, N), 2);
+        return nlg_fun(index_kom2i_kom(i-1, j-1, N), 2, N);
     }
     //if( i == 0 && j == 2*N){
-    return nlg_fun(index_kom2i_kom(i, j-1, N), 4);
+    return nlg_fun(index_kom2i_kom(i, j-1, N), 4, N);
     
 };
 
-float g(float eps1, float eps2, int i){
-    switch(i){
+float g(float eps1, float eps2, int i_wewn){
+    switch(i_wewn){
     case 1:
         return f1(eps1)*f1(eps2);
         break;
@@ -132,7 +132,7 @@ float g(float eps1, float eps2, int i){
         return f2(eps1)*f2(eps2);
         break;
     default:
-        throw std::out_of_range("i out of range");
+        throw std::out_of_range("i_wewn out of range");
         break;
     }
 };
@@ -146,12 +146,12 @@ float f2(float x){
     return (1.0 + x)/2.0;
 };
 
-std::vector<float> i_kom_i_wewn2pos(int i_kom, int i_wewn, float Lnm, float anm){
-    std::vector<int> indexes = i_kom_i_wewn2index_kom(i_kom, i_wewn);
+std::vector<float> i_kom_i_wewn2pos(int i_kom, int i_wewn, float L, float a, int N){
+    std::vector<int> indexes = i_kom_i_wewn2index_kom(i_kom, i_wewn, N);
 
     std::vector<float> pos(2);
-    pos[0] = -Lnm/2 + indexes[1] * anm;  //x 
-    pos[1] = Lnm/2 - indexes[0] * anm;   //y
+    pos[0] = -L/2 + indexes[1] * a;  //x 
+    pos[1] = L/2 - indexes[0] * a;   //y
 
     return pos;
 }
@@ -160,8 +160,5 @@ float calcPsi(float x, float y){
     return exp(-Const::m*Const::w*0.5 * (x*x + y*y));
 };
 
-void info(std::ofstream& file){
-    file << Const::anm/(Const::DX/Const::d_ksi) << "," << (Const::DX/Const::d_ksi) << ","; 
-};
 
 
