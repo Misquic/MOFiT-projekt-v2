@@ -19,8 +19,7 @@ send/
 *.zip
 
 #folders with data for debugging
-results_old/
-results_debug/
+results/
 
 #folders with ParaView results
 animations/
