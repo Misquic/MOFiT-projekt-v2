@@ -1,15 +1,9 @@
 #include "funkc.h"
+#include "Elements.h"
 #include <iostream>
 #include <tuple>
 #include <cmath>
 
-float nm2au(float nm){
-    return nm*18.89726133921252;
-};
-
-float eV2au(float eV){
-    return eV*0.03674932587122423;
-};
 
 int nlg_fun(int i_kom, int i_wewn, int N){ //zwraca numer wezla globalnie z numeru komorki i numeru wezla lokalnego
     if(i_wewn <= 0 || i_wewn >= 5 ){
@@ -53,7 +47,8 @@ int index_kom2i_kom(int i, int j, int N){
     return 2*N-i + j*2*N;
 };
 
-std::vector<int> i_kom_i_wewn2index_kom(int i_kom, int i_wewn, int N){
+std::vector<int> i_kom_i_wewn2index_kom(int i_kom, int i_wewn, const Parameters& pm){
+    int N = pm.N;
     int i, j;
 
     switch (i_wewn)    {
@@ -146,19 +141,69 @@ float f2(float x){
     return (1.0 + x)/2.0;
 };
 
-std::vector<float> i_kom_i_wewn2pos(int i_kom, int i_wewn, float L, float a, int N){
-    std::vector<int> indexes = i_kom_i_wewn2index_kom(i_kom, i_wewn, N);
+std::vector<float> i_kom_i_wewn2pos(int i_kom, int i_wewn, const Parameters& pm){
+    std::vector<int> indexes = i_kom_i_wewn2index_kom(i_kom, i_wewn, pm);
 
     std::vector<float> pos(2);
-    pos[0] = -L/2 + indexes[1] * a;  //x 
-    pos[1] = L/2 - indexes[0] * a;   //y
+    pos[0] = -pm.L/2 + indexes[1] * pm.a;  //x 
+    pos[1] = pm.L/2 - indexes[0] * pm.a;   //y
 
     return pos;
 }
 
-float calcPsi(float x, float y){
-    return exp(-Const::m*Const::w*0.5 * (x*x + y*y));
+float calcPsi(float x, float y, const Parameters& pm){
+    return exp(-pm.m*pm.omega*0.5 * (x*x + y*y));
 };
 
+float s_ji(int j, int i, const Parameters& pm){
+    
+    float suma = 0;
+    
+    for(int l = 1; l <= 3; l++){
+        for(int n = 1; n <= 3; n++){
 
+            suma += pm.w[l]*pm.w[n]*g(pm.p[l],pm.p[n],j)*g(pm.p[l],pm.p[n],i);
 
+            };
+        };
+
+        float s_ij_value = (pm.a*pm.a/4)*suma;
+
+    return s_ij_value;
+    };
+
+float t_ji(int j, int i, const Parameters& pm){
+    float suma = 0;
+    for(int l = 1; l <= 3; l++){
+        for(int n = 1; n <= 3; n++){
+            suma += pm.w[l]*pm.w[n]* (dgdksi(j, l, n, pm)*dgdksi(i, l, n, pm) + dgdksi(j, l, n, pm)*dgdksi(i, l, n, pm));
+            };
+        };
+
+    return suma /pm.m; 
+};
+float dgdksi(int i, int l, int n, const Parameters& pm){
+    return (g(pm.p[l],pm.p[n] + pm.d_ksi, i) - g(pm.p[l],pm.p[n] - pm.d_ksi, i))/(2*pm.d_ksi);
+};
+
+float v_ji(int j, int i, int i_kom, const Parameters& pm){
+    float local_const = (pm.a*pm.a/4)*(pm.m*pm.omega*pm.omega/2);
+    float suma = 0;
+
+    for(int l = 1; l <= 3; l++){
+        for(int n = 1; n <= 3; n++){
+            suma += pm.w[i]*pm.w[j] * g(pm.p[l],pm.p[n],j) * g(pm.p[l],pm.p[n],i) * (pow(ksi2r(pm.p[l], i_kom, pm)[0], 2) + pow(ksi2r(pm.p[n], i_kom, pm)[1], 2)); // MICHAŁ TU SKOŃCZYŁEŚ, zmieniłem k na i_kom, żeby się trzymać konwencji
+        };
+    };
+    return suma * local_const;
+    
+};
+
+std::vector<float> ksi2r(float ksi_x, float ksi_y, int i_kom, const Parameters&  pm){
+    std::vector<float> pos(2);
+    Element el(i_kom, pm);
+    return el.ksi2r(ksi_x, ksi_y);
+};
+std::vector<float> ksi2r(float ksi, int i_kom, const Parameters&  pm){
+    return ksi2r(ksi, ksi, i_kom, pm);
+};

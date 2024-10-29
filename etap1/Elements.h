@@ -3,18 +3,15 @@
 #include <iostream>
 #include <iomanip>
 #include <vector>
-#include "Const.h"
-
-
+#include "Parameters.h"
 
 class Node{
-private:
-    std::vector<float> pos;  //realna pozycja wezla
-    int const          N  ;  // N
-
 public:
+    const Parameters& pm;
+    std::vector<float> pos;  //realna pozycja wezla
+
     const int name;                           //nazwa wezla
-    Node (int name, std::vector<float> pos, int N);  //zwykly konstruktor
+    Node (int name, std::vector<float> pos, const Parameters& pm);  //zwykly konstruktor
     // Node (const Node& other);                 //konstruktor kopiujący
     // Node (Node&& other);                      //konstruktor przenoszący (na wszelki wypadek)
     
@@ -34,16 +31,13 @@ std::ostream& operator<<(std::ostream& out, const Node node); //do wypisywania, 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Element{
-private:
-    std::vector<Node> nodes;                // kontener na wezly stowarzyszone z elementem(komorka), w element posiada 4 wezly
-    float             anm;                  // bok elemetu w nm //musi byc zadeklarowany przed L, bo taka konwencja w konstruktorach
-    float             a;                    // bok elementu, moze sie przyda tu
-    const int         N;                    // N
 public:
-    const   int name;                           // numer/nazwa elementu
-    Element(int name, float anm, int N);  //zwykly konstruktor
-    // Element(const Element& other);              //konstruktor kopiujacy
-    // Element(Element&& other);                   // konstruktor przenoszacy w ramach dobrego programowania
+    const Parameters& pm;
+    std::vector<Node> nodes;                      // kontener na wezly stowarzyszone z elementem(komorka), w element posiada 4 wezly
+    const             int name;                   // numer/nazwa elementu
+    Element(int name, const Parameters& pm);  //zwykly konstruktor
+                                                  // Element(const Element& other);              //konstruktor kopiujacy
+                                                  // Element(Element&& other);                   // konstruktor przenoszacy w ramach dobrego programowania
 
     //TODO
     // Element& operator=(const Element& other);
@@ -54,6 +48,8 @@ public:
     float getAnm() const;
     std::vector<Node> getNodes() const;
     Node getNode(int i) const;
+    std::vector<float> ksi2r(float ksi_x, float ksi_y);  //dla konkretnego elementu i ksi wylicz pozycję globalną
+    std::vector<float> ksi2r(float ksi);                 //wrapper gdy podamy tylko jedno ksi
 };
 
 std::ostream& operator<<(std::ostream& out, const Element element);  //do wypisywania, zmienic, jesli potrzeba wygodniej wyswietlac
@@ -62,17 +58,11 @@ std::ostream& operator<<(std::ostream& out, const Element element);  //do wypisy
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Elements{
-private:
-    std::vector<Element> elements; //kontener elementow, cala baza sluzy jako kontener tych elementow w zasadzie
 public:
-    const int N;      //samo sie tlumaczy, no zwiazane z rozmiarem tych siatek
-    const float Lnm;  // dlugosc calej siatki w nm //musi byc zadeklarowany przed L, bo taka konwencja w konstruktorach
-    const float L;    // dlugosc w au
+    std::vector<Element> elements; //kontener elementow, cala baza sluzy jako kontener tych elementow w zasadzie
+    const Parameters& pm;
 
-    Elements(int N, float Lnm);       //normalny konstruktor
-    Elements(const Elements& other);  //konstruktor kopiujacy
-    Elements(Elements&& other);       //konstruktor przenoszacy, bo dobre programowanie
-
+    Elements(const Parameters& pm);  //normalny konstruktor
     std::vector<Element> getElements() const; //gettery
     Element getElement(int name) const;
 };

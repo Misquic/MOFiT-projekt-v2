@@ -7,6 +7,8 @@
 #include <type_traits>  // do std::enable if
 #include <fstream>  // do std::enable if
 #include "Const.h"
+#include "Parameters.h"
+
 
 /* i_kom       = nazwa komorki
    numer wezla = nazwa wezla
@@ -19,8 +21,7 @@
 /////////////////////////////////////////////////////FUNKCJE////////////////////////////////////////////////////////// typ_zwracany nazwa_funkcji(typ_argumentu argument);
 
 
-float nm2au(float nm);  //do konwersji nm na jednostki atomowe
-float eV2au(float eV);  //do konwersji eV na jednostki atomowe
+
 
 int nlg_fun(int i_kom, int i_wewn, int N); //funkcja bazowa zadania do konwersji i_kom i_wewn KOMORKI na nazwe wezla, bedzie przydatna do obliczen, mozna by nazwac i_kom_iwewn2node_name
 
@@ -30,15 +31,21 @@ int index_kom2i_kom(int i, int j, int N); //do konwersji indeksów tablicy KOMOR
    2,0 2,1 2,2    1 4 7*/
 int index_node2node_name(int i, int j, int N); //do konwersji indexów tablicy WEZLOW na nazwe WEZLA
 
-std::vector<int> i_kom_i_wewn2index_kom(int i_kom, int i_wewn, int N); //do konwersji i_kom i_wewn KOMORKI na indexy tablicowe KOMOREK
-std::vector<float> i_kom_i_wewn2pos(int i_kom, int i_wewn, float L, float a, int N); //do konwersji i_kom i_wewn KOMORKI na pozyzje WEZLA
+std::vector<int>   i_kom_i_wewn2index_kom(int i_kom, int i_wewn, const Parameters& pm);  //do konwersji i_kom i_wewn KOMORKI na indexy tablicowe KOMOREK
+std::vector<float> i_kom_i_wewn2pos(int i_kom, int i_wewn, const Parameters &pm);        //do konwersji i_kom i_wewn KOMORKI na pozyzje WEZLA
+
 
 float g(float eps1, float eps2, int i);
 float f1(float x);
 float f2(float x);
 
-float calcPsi(float x, float y);
-void info(std::ofstream& file);
+float calcPsi(float x, float y, const Parameters&  pm);
+
+float s_ji(int j, int i, const Parameters&  pm);
+float t_ji(int j, int i, const Parameters&  pm);
+float dgdksi(int i, int l, int n, const Parameters&  pm);
+std::vector<float> ksi2r(float ksi_x, float ksi_y, int i_kom, const Parameters&  pm);  //dla konkretnego elementu i ksi wylicz pozycję globalną
+std::vector<float> ksi2r(float ksi, int i_kom, const Parameters&  pm);                 // gdy ksi_x = ksi_y, dla wygody //wrapper gdy podamy tylko jedno ksi
 
 
 ////////////////////////////////////////////////SZABLONY////////////////////////////////////////////////////////////// (muszą definicjie muszą być w pliku naglowkowym)
@@ -113,5 +120,7 @@ std::vector<std::vector<data_type>> transpose( const std::vector<std::vector<dat
     }
     return ret;
 };
+
+
 
 #endif // FUNKC_H
