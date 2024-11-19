@@ -160,7 +160,7 @@ float s_ji(int j, int i, const Parameters& pm){
     for(int l = 1; l <= 3; l++){
         for(int n = 1; n <= 3; n++){
 
-            suma += pm.w[l]*pm.w[n]*g(pm.p[l],pm.p[n],j)*g(pm.p[l],pm.p[n],i);
+            suma += pm.w[l-1]*pm.w[n-1]*g(pm.p[l-1],pm.p[n-1],j)*g(pm.p[l-1],pm.p[n-1],i);
 
             };
         };
@@ -173,27 +173,31 @@ float t_ji(int j, int i, const Parameters& pm){
     float suma = 0;
     for(int l = 1; l <= 3; l++){
         for(int n = 1; n <= 3; n++){
-            suma += pm.w[l]*pm.w[n]* (dgdksi(j, l, n, pm)*dgdksi(i, l, n, pm) + dgdksi(j, l, n, pm)*dgdksi(i, l, n, pm));
+            suma += pm.w[l-1]*pm.w[n-1]*(dgdksi1(j, l, n, pm)*dgdksi1(i, l, n, pm) + dgdksi2(j, l, n, pm)*dgdksi2(i, l, n, pm));// + dgdksi(j, l, n, pm)*dgdksi(i, l, n, pm));
             };
         };
 
-    return suma / pm.m; 
+    return suma / (2*pm.m); 
 };
-float dgdksi(int i, int l, int n, const Parameters& pm){
-    return (g(pm.p[l],pm.p[n] + pm.d_ksi, i) - g(pm.p[l],pm.p[n] - pm.d_ksi, i))/(2*pm.d_ksi);
+float dgdksi2(int i, int l, int n, const Parameters& pm){
+    return (g(pm.p[l-1],pm.p[n-1] + pm.d_ksi, i) - g(pm.p[l-1],pm.p[n-1] - pm.d_ksi, i))/(2.0*pm.d_ksi);
+};
+float dgdksi1(int i, int l, int n, const Parameters& pm){
+    return (g(pm.p[l-1] + pm.d_ksi,pm.p[n-1], i) - g(pm.p[l-1] - pm.d_ksi,pm.p[n-1], i))/(2.0*pm.d_ksi);
 };
 
 float v_ji(int j, int i, int i_kom, const Parameters& pm){
-    float local_const = (pm.a*pm.a/4)*(pm.m*pm.omega*pm.omega/2);
+    float local_const = (pm.a*pm.a/4.0)*(pm.m*pm.omega*pm.omega/2.0);
     float suma = 0;
 
     for(int l = 1; l <= 3; l++){
         for(int n = 1; n <= 3; n++){
-            suma += pm.w[i]*pm.w[j] * g(pm.p[l],pm.p[n],j) * g(pm.p[l],pm.p[n],i) * (pow(ksi2r(pm.p[l], i_kom, pm)[0], 2) + pow(ksi2r(pm.p[n], i_kom, pm)[1], 2)); // MICHAŁ TU SKOŃCZYŁEŚ, zmieniłem k na i_kom, żeby się trzymać konwencji
+            
+            suma += pm.w[l-1]*pm.w[n-1] * g(pm.p[l-1],pm.p[n-1],j) * g(pm.p[l-1],pm.p[n-1],i) * (pow(ksi2r(pm.p[l-1], i_kom, pm)[0], 2.0) + pow(ksi2r(pm.p[n-1], i_kom, pm)[1], 2.0));
+            //std::cout << i << " "<< j << " "<< l << " "<< n << " " << suma << "\n";
         };
     };
     return suma * local_const;
-    
 };
 
 std::vector<float> ksi2r(float ksi_x, float ksi_y, int i_kom, const Parameters&  pm){
@@ -204,3 +208,22 @@ std::vector<float> ksi2r(float ksi_x, float ksi_y, int i_kom, const Parameters& 
 std::vector<float> ksi2r(float ksi, int i_kom, const Parameters&  pm){
     return ksi2r(ksi, ksi, i_kom, pm);
 };
+
+std::vector<int> generate_global_boundary_nodes(const Parameters&  pm){
+
+    std::vector<int> boundary_nodes(8*pm.N); 
+
+    int k = 0;
+    for(int i=0; i<2*pm.N+1; i++){
+        for(int j = 0; j<2*pm.N+1; j++){
+            if(i==0 || j ==0 || i==2*pm.N || j==2*pm.N){
+                boundary_nodes[k] = index_node2node_name(i,j, pm.N);
+                k++;
+            };
+        };
+        
+    };
+    return boundary_nodes;
+};
+
+

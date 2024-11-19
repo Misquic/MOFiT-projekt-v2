@@ -6,7 +6,7 @@
 #include <typeinfo>     // do sprawdzania typów i porównywania typów
 #include <type_traits>  // do std::enable if
 #include <fstream>  // do std::enable if
-#include "Const.h"
+// #include "Const.h"
 #include "Parameters.h"
 
 
@@ -43,13 +43,24 @@ float calcPsi(float x, float y, const Parameters&  pm);
 
 float s_ji(int j, int i, const Parameters&  pm);
 float t_ji(int j, int i, const Parameters&  pm);
-float dgdksi(int i, int l, int n, const Parameters&  pm);
+float dgdksi1(int i, int l, int n, const Parameters&  pm);
+float dgdksi2(int i, int l, int n, const Parameters&  pm);
 float v_ji(int j, int i, int i_kom, const Parameters& pm);
 std::vector<float> ksi2r(float ksi_x, float ksi_y, int i_kom, const Parameters&  pm);  //dla konkretnego elementu i ksi wylicz pozycję globalną
 std::vector<float> ksi2r(float ksi, int i_kom, const Parameters&  pm);                 // gdy ksi_x = ksi_y, dla wygody //wrapper gdy podamy tylko jedno ksi
 
+std::vector<int> generate_global_boundary_nodes(const Parameters&  pm);
 
 ////////////////////////////////////////////////SZABLONY////////////////////////////////////////////////////////////// (muszą definicjie muszą być w pliku naglowkowym)
+
+
+template <class data_type>
+bool in(data_type el, std::vector<data_type> vec){
+    for(int i = 0; i < vec.size(); i++){
+        if(el == vec[i]) return true;
+    }
+    return false;
+}
 
 template <class data_type>
 std::ostream& operator<<(std::ostream& out, const std::vector<data_type>& tab){ //wypisywanie wektorów jednowymiarowych
@@ -136,7 +147,5 @@ std::vector<std::vector<data_type>> transpose( const std::vector<std::vector<dat
     }
     return ret;
 };
-
-
 
 #endif // FUNKC_H

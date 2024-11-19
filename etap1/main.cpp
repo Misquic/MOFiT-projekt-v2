@@ -3,7 +3,7 @@
 #include <vector>
 #include "funkc.h"
 #include "Elements.h"
-#include "Const.h"
+// #include "Const.h"
 
 
 int main(int argc, char* argv[]){
@@ -34,7 +34,7 @@ int main(int argc, char* argv[]){
     }
     std::cout << "s: \n" << s*(4.0/pm.a/pm.a*9.0);
     std::cout << "t: \n" << t*(6.0*2.0*pm.m);
-    std::cout << "v: \n" << v*(8.0/pm.a/pm.a/pm.m/pm.omega/pm.omega);
+    std::cout << "v: \n" << v*(1/v[0][0])*4;//*(8.0/pm.a/pm.a/pm.m/pm.omega/pm.omega)*;
  
 
 
@@ -55,6 +55,7 @@ int main(int argc, char* argv[]){
         return 0;
     }
 
+    //liczenie psi zad 2
     std::vector<float> pos(2);
     for(Element& el: elements.getElements()){
         std::cout <<"\r             \r" << el.getName();
@@ -78,7 +79,7 @@ int main(int argc, char* argv[]){
     }
     // (x,y) ksi2r(numer wezla, ksix, ksiy)
 
+    std::cout << "\n";
+    elements.elements[3].S_filter();
 
-
-    
 }

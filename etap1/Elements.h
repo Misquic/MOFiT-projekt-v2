@@ -32,6 +32,8 @@ std::ostream& operator<<(std::ostream& out, const Node node); //do wypisywania, 
 
 class Element{
 public:
+    std::vector<std::vector<float>> S = std::vector<std::vector<float>>(4,std::vector<float>(4));
+    std::vector<std::vector<float>> H = std::vector<std::vector<float>>(4,std::vector<float>(4));
     const Parameters& pm;
     std::vector<Node> nodes;                      // kontener na wezly stowarzyszone z elementem(komorka), w element posiada 4 wezly
     const             int name;                   // numer/nazwa elementu
@@ -50,6 +52,10 @@ public:
     Node getNode(int i) const;
     std::vector<float> ksi2r(float ksi_x, float ksi_y);  //dla konkretnego elementu i ksi wylicz pozycję globalną
     std::vector<float> ksi2r(float ksi);                 //wrapper gdy podamy tylko jedno ksi
+    
+    
+    void S_filter(); 
+
 };
 
 std::ostream& operator<<(std::ostream& out, const Element element);  //do wypisywania, zmienic, jesli potrzeba wygodniej wyswietlac

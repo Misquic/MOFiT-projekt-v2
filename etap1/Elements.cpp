@@ -57,6 +57,23 @@ std::vector<float> Element::ksi2r(float ksi){
     return this->ksi2r(ksi, ksi);
 };
 
+void Element::S_filter(){
+
+    std::vector<Node> global_nodes_in_this_element = this->getNodes();
+
+    static std::vector<int> boundary_nodes(8*pm.N);
+    boundary_nodes = generate_global_boundary_nodes(pm);
+
+    for(int i = 0; i < 4; i++){
+        if(in(global_nodes_in_this_element[i].name, boundary_nodes)){
+            std::cout << global_nodes_in_this_element[i].name << "\n";
+        
+
+        }
+    }
+
+}
+
 std::ostream& operator<<(std::ostream& out, const Element element){
     out << "el: " << element.name << "\n";
     for(int i_wewn = 1; i_wewn <= element.getNodes().size(); i_wewn++ ){
