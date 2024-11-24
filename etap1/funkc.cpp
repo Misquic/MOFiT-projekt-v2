@@ -3,7 +3,9 @@
 #include <iostream>
 #include <tuple>
 #include <cmath>
-
+#include "Eigen/Dense"
+#include "Eigen/Eigenvalues"
+using namespace Eigen;
 
 int nlg_fun(int i_kom, int i_wewn, int N){ //zwraca numer wezla globalnie z numeru komorki i numeru wezla lokalnego
     if(i_wewn <= 0 || i_wewn >= 5 ){
@@ -15,7 +17,7 @@ int nlg_fun(int i_kom, int i_wewn, int N){ //zwraca numer wezla globalnie z nume
         return i_kom;
         break;
     case 2:
-        if(float(i_kom)/(2*N) > (2*N-1) ){//skrajny prawy
+        if(double(i_kom)/(2*N) > (2*N-1) ){//skrajny prawy
             return i_kom + 2*(2*N);
         }
         return i_kom + (2*N);
@@ -27,7 +29,7 @@ int nlg_fun(int i_kom, int i_wewn, int N){ //zwraca numer wezla globalnie z nume
         return i_kom + 1;
         break;
     case 4:
-        if(float(i_kom)/(2*N) > (2*N-1) ){
+        if(double(i_kom)/(2*N) > (2*N-1) ){
             return i_kom + 2*(2*N) + 1;
         }
         if( i_kom%(2*N) == 0){
@@ -112,7 +114,7 @@ int index_node2node_name(int i, int j, int N){
     
 };
 
-float g(float eps1, float eps2, int i_wewn){
+double g(double eps1, double eps2, int i_wewn){
     switch(i_wewn){
     case 1:
         return f1(eps1)*f1(eps2);
@@ -133,30 +135,30 @@ float g(float eps1, float eps2, int i_wewn){
 };
 
 
-float f1(float x){
+double f1(double x){
     return (1.0 - x)/2.0;
 };
 
-float f2(float x){
+double f2(double x){
     return (1.0 + x)/2.0;
 };
 
-std::vector<float> i_kom_i_wewn2pos(int i_kom, int i_wewn, const Parameters& pm){
+std::vector<double> i_kom_i_wewn2pos(int i_kom, int i_wewn, const Parameters& pm){
     std::vector<int> indexes = i_kom_i_wewn2index_kom(i_kom, i_wewn, pm);
 
-    std::vector<float> pos(2);
+    std::vector<double> pos(2);
     pos[0] = -pm.L/2 + indexes[1] * pm.a;  //x 
     pos[1] = pm.L/2 - indexes[0] * pm.a;   //y
 
     return pos;
 }
 
-float calcPsi(float x, float y, const Parameters& pm){
+double calcPsi(double x, double y, const Parameters& pm){
     return exp(-pm.m*pm.omega*0.5 * (x*x + y*y));
 };
 
-float s_ji(int j, int i, const Parameters& pm){
-    float suma = 0;
+double s_ji(int j, int i, const Parameters& pm){
+    double suma = 0;
     for(int l = 1; l <= 3; l++){
         for(int n = 1; n <= 3; n++){
 
@@ -169,8 +171,8 @@ float s_ji(int j, int i, const Parameters& pm){
     return suma * (pm.a*pm.a/4);
     };
 
-float t_ji(int j, int i, const Parameters& pm){
-    float suma = 0;
+double t_ji(int j, int i, const Parameters& pm){
+    double suma = 0;
     for(int l = 1; l <= 3; l++){
         for(int n = 1; n <= 3; n++){
             suma += pm.w[l-1]*pm.w[n-1]*(dgdksi1(j, l, n, pm)*dgdksi1(i, l, n, pm) + dgdksi2(j, l, n, pm)*dgdksi2(i, l, n, pm));// + dgdksi(j, l, n, pm)*dgdksi(i, l, n, pm));
@@ -179,16 +181,16 @@ float t_ji(int j, int i, const Parameters& pm){
 
     return suma / (2*pm.m); 
 };
-float dgdksi2(int i, int l, int n, const Parameters& pm){
+double dgdksi2(int i, int l, int n, const Parameters& pm){
     return (g(pm.p[l-1],pm.p[n-1] + pm.d_ksi, i) - g(pm.p[l-1],pm.p[n-1] - pm.d_ksi, i))/(2.0*pm.d_ksi);
 };
-float dgdksi1(int i, int l, int n, const Parameters& pm){
+double dgdksi1(int i, int l, int n, const Parameters& pm){
     return (g(pm.p[l-1] + pm.d_ksi,pm.p[n-1], i) - g(pm.p[l-1] - pm.d_ksi,pm.p[n-1], i))/(2.0*pm.d_ksi);
 };
 
-float v_ji(int j, int i, int i_kom, const Parameters& pm){
-    float local_const = (pm.a*pm.a/4.0)*(pm.m*pm.omega*pm.omega/2.0);
-    float suma = 0;
+double v_ji(int j, int i, int i_kom, const Parameters& pm){
+    double local_const = (pm.a*pm.a/4.0)*(pm.m*pm.omega*pm.omega/2.0);
+    double suma = 0;
 
     for(int l = 1; l <= 3; l++){
         for(int n = 1; n <= 3; n++){
@@ -200,12 +202,12 @@ float v_ji(int j, int i, int i_kom, const Parameters& pm){
     return suma * local_const;
 };
 
-std::vector<float> ksi2r(float ksi_x, float ksi_y, int i_kom, const Parameters&  pm){
-    std::vector<float> pos(2);
+std::vector<double> ksi2r(double ksi_x, double ksi_y, int i_kom, const Parameters&  pm){
+    std::vector<double> pos(2);
     Element el(i_kom, pm);
     return el.ksi2r(ksi_x, ksi_y);
 };
-std::vector<float> ksi2r(float ksi, int i_kom, const Parameters&  pm){
+std::vector<double> ksi2r(double ksi, int i_kom, const Parameters&  pm){
     return ksi2r(ksi, ksi, i_kom, pm);
 };
 
@@ -221,9 +223,140 @@ std::vector<int> generate_global_boundary_nodes(const Parameters&  pm){
                 k++;
             };
         };
-        
     };
     return boundary_nodes;
 };
 
+std::pair<std::vector<double>, std::vector<std::vector<double>>> HcESc(
+    const std::vector<std::vector<double>>& vecH, 
+    const std::vector<std::vector<double>>& vecS) 
+{
+    if (vecH.size() != vecH[0].size() || vecS.size() != vecS[0].size()) {
+        throw std::invalid_argument("macierze nie są kwadratowe");
+    }
+    if (vecH.size() != vecS.size()) {
+        throw std::invalid_argument("inne wymiary tablic");
+    }
 
+    int n = vecH.size();
+    Eigen::MatrixXd H(n, n);
+    Eigen::MatrixXd S(n, n);
+
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            H(i, j) = vecH[i][j];
+            S(i, j) = vecS[i][j];
+        }
+    }
+
+    if (!H.isApprox(H.transpose()) || !S.isApprox(S.transpose())) {
+        throw std::invalid_argument("macierze są niesymetryczne");
+    }
+
+    Eigen::GeneralizedSelfAdjointEigenSolver<Eigen::MatrixXd> solver(H, S);
+    if (solver.info() != Eigen::Success) {
+        throw std::runtime_error("nie rozwiązałem lol :D");
+    }
+
+    Eigen::VectorXd eigenvalues = solver.eigenvalues();
+    std::vector<double> E(eigenvalues.data(), eigenvalues.data() + eigenvalues.size());
+
+    Eigen::MatrixXd eigenvectors = solver.eigenvectors();
+    std::vector<std::vector<double>> v;
+    for (int col = 0; col < eigenvectors.cols(); ++col) {
+        std::vector<double> column(eigenvectors.rows());
+        for (int row = 0; row < eigenvectors.rows(); ++row) {
+            column[row] = eigenvectors(row, col);
+        }
+        v.push_back(column);
+    }
+
+    return {E, v};
+};
+
+std::vector<double> fifteen_lowest(const std::vector<double>& input, size_t n) {
+    std::vector<double> positiveValues;
+    for (double value : input) {
+        if (value > 0) {
+            positiveValues.push_back(value);
+        }
+    }
+    if (positiveValues.size() < n) {
+        throw std::runtime_error("Za mało dodatnich wartości w wektorze!");
+    }
+    std::sort(positiveValues.begin(), positiveValues.end());
+    return std::vector<double>(positiveValues.begin(), positiveValues.begin() + n);
+};
+
+int find_index(const std::vector<double>& vec, double value) {
+    auto it = std::find(vec.begin(), vec.end(), value);
+    if (it != vec.end()) {
+        return std::distance(vec.begin(), it);
+    } else {
+        return -1;
+    }
+};
+
+int oom(double x){ // to get order of magnitude // nie działa dla ujemnych i poniżej 1 
+    int oom_val = 0;
+    if(x < 0){
+        oom_val--;
+        x = -x;
+    }
+    if(x == 0){
+        return 1;
+    }
+    if(x < 1){
+        while(x < 1){
+            x*=10;
+            oom_val--;
+            // if(oom_val < -14){
+            //     std::cout << "oom break!: " << oom_val << " x: " << x << "\n";
+            // return 0;
+            //}
+        }
+        return oom_val;
+        // return 2;
+    }
+    while(x > 1){
+        x/=10;
+        oom_val++;
+        if(oom_val > 12){
+            std::cout << "oom break!: " << x << "\n";
+            return oom_val;
+        }
+    }
+    return oom_val;
+};
+
+int oom(const std::vector<double>& vec){
+    int oom_val = 0;
+    for(const double& x: vec){
+        int oom_x = oom(x);
+        if(std::abs(oom_x) > oom_val){
+            oom_val = oom_x;
+        }
+    }
+    return oom_val;
+}
+
+int oom(const std::vector<std::vector<double>>& vec){
+    int oom_val = 0;
+    for(const std::vector<double>& x: vec){
+        int oom_x = oom(x);
+        if(std::abs(oom_x) > oom_val){
+            oom_val = oom_x;
+        }
+    }
+    return oom_val;
+}
+
+// std::vector<double> v_with_E(const std::pair<std::vector<double>, std::vector<std::vector<double>>>& EV, int nty_najnizszy){
+//     std::vector<double> lowest_Es = fifteen_lowest(EV.first, 15);
+//     double used_E = lowest_Es[nty_najnizszy-1];
+//     int idx = find_index(EV.first, used_E);
+//     std::vector<double> vec;
+
+// = EV.second
+// return vec;
+// };

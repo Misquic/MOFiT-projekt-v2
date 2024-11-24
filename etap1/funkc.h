@@ -3,6 +3,7 @@
 #include <iostream>
 #include <iomanip>
 #include <vector>
+#include "Eigen/Dense"
 #include <typeinfo>     // do sprawdzania typów i porównywania typów
 #include <type_traits>  // do std::enable if
 #include <fstream>  // do std::enable if
@@ -32,24 +33,28 @@ int index_kom2i_kom(int i, int j, int N); //do konwersji indeksów tablicy KOMOR
 int index_node2node_name(int i, int j, int N); //do konwersji indexów tablicy WEZLOW na nazwe WEZLA
 
 std::vector<int>   i_kom_i_wewn2index_kom(int i_kom, int i_wewn, const Parameters& pm);  //do konwersji i_kom i_wewn KOMORKI na indexy tablicowe KOMOREK
-std::vector<float> i_kom_i_wewn2pos(int i_kom, int i_wewn, const Parameters &pm);        //do konwersji i_kom i_wewn KOMORKI na pozyzje WEZLA
+std::vector<double> i_kom_i_wewn2pos(int i_kom, int i_wewn, const Parameters &pm);        //do konwersji i_kom i_wewn KOMORKI na pozyzje WEZLA
 
 
-float g(float eps1, float eps2, int i);
-float f1(float x);
-float f2(float x);
+double g(double eps1, double eps2, int i);
+double f1(double x);
+double f2(double x);
 
-float calcPsi(float x, float y, const Parameters&  pm);
+double calcPsi(double x, double y, const Parameters&  pm);
 
-float s_ji(int j, int i, const Parameters&  pm);
-float t_ji(int j, int i, const Parameters&  pm);
-float dgdksi1(int i, int l, int n, const Parameters&  pm);
-float dgdksi2(int i, int l, int n, const Parameters&  pm);
-float v_ji(int j, int i, int i_kom, const Parameters& pm);
-std::vector<float> ksi2r(float ksi_x, float ksi_y, int i_kom, const Parameters&  pm);  //dla konkretnego elementu i ksi wylicz pozycję globalną
-std::vector<float> ksi2r(float ksi, int i_kom, const Parameters&  pm);                 // gdy ksi_x = ksi_y, dla wygody //wrapper gdy podamy tylko jedno ksi
+double s_ji(int j, int i, const Parameters&  pm);
+double t_ji(int j, int i, const Parameters&  pm);
+double dgdksi1(int i, int l, int n, const Parameters&  pm);
+double dgdksi2(int i, int l, int n, const Parameters&  pm);
+double v_ji(int j, int i, int i_kom, const Parameters& pm);
+std::vector<double> ksi2r(double ksi_x, double ksi_y, int i_kom, const Parameters&  pm);  //dla konkretnego elementu i ksi wylicz pozycję globalną
+std::vector<double> ksi2r(double ksi, int i_kom, const Parameters&  pm);                 // gdy ksi_x = ksi_y, dla wygody //wrapper gdy podamy tylko jedno ksi
 
 std::vector<int> generate_global_boundary_nodes(const Parameters&  pm);
+std::pair<std::vector<double>, std::vector<std::vector<double>>> HcESc(const std::vector<std::vector<double>>& vecH, const std::vector<std::vector<double>>& vecS);
+std::vector<double> fifteen_lowest(const std::vector<double>& input, size_t n);
+int find_index(const std::vector<double>& vec, double value);
+std::vector<double> v_with_E(const std::pair<std::vector<double>, std::vector<std::vector<double>>>& EV, int nty_najnizszy);
 
 ////////////////////////////////////////////////SZABLONY////////////////////////////////////////////////////////////// (muszą definicjie muszą być w pliku naglowkowym)
 
@@ -62,11 +67,15 @@ bool in(data_type el, std::vector<data_type> vec){
     return false;
 }
 
+int oom(double x);// to get order of magnitude
+int oom(const std::vector<double>& vec);
+int oom(const std::vector<std::vector<double>>& vec);
+
 template <class data_type>
 std::ostream& operator<<(std::ostream& out, const std::vector<data_type>& tab){ //wypisywanie wektorów jednowymiarowych
 
     for(int i=0; i<tab.size(); i++){
-        if(typeid(tab[0]) == typeid(float)){
+        if(typeid(tab[0]) == typeid(double)){
             out << std::setw(3);
         }
         out << tab[i];
@@ -82,12 +91,41 @@ std::ostream& operator<<(std::ostream& out, const std::vector<data_type>& tab){ 
 template <class data_type>
 std::ostream& operator<<(std::ostream& out, const std::vector<std::vector<data_type>>& tab){ //wypisywanie wektorów dwuwymiarowych
 
+    int max_oom = oom(tab);
+    std::cout << "max_oom: " << max_oom << "\n";
+    
+    if(std::abs(max_oom) < oom(tab.size())){
+        max_oom = oom(tab.size());
+    }
+    else if(max_oom < 0){ //NIE DZIAŁA Z MNIEJSZYMI OD ZERA
+        max_oom = 12;
+    }
+   
+
+    if(typeid(tab[0][0]) == typeid(double)){
+        out << std::setw(oom(tab.size()) + 1);
+        out << "x" << "  ";
+        for(int i = 0; i < tab.size(); i++){
+            out << std::setw(max_oom + 1);
+            out << i+1 << ": ";
+        }
+        out << "\n";
+    }
+
     for(int i=0; i<tab.size(); i++){
+        if(typeid(tab[0][0]) == typeid(double)){
+            out << std::setw(oom(tab.size()) + 1);
+            out << i+1 << ": ";
+        }
         for(int j=0; j<tab[0].size(); j++){
-            if(typeid(tab[0][0]) == typeid(float)){
-                out << std::setw(3);
+            if(typeid(tab[0][0]) == typeid(double)){
+                out << std::setw(max_oom + 2);
+                int round_order = std::pow(10,max_oom+1 - oom(tab[i][j])); // 1 odpowiada za zaokrąglanie do dziesiętnych miejsc największych liczb
+                out << round(tab[i][j]*round_order)/round_order;
             }
-            out << tab[i][j];
+            else{
+                out << tab[i][j];
+            }
             if(i!=tab.size()-1 || j!=tab[0].size()-1){
                 out << " ";
             } 
@@ -118,7 +156,7 @@ std::ostream& operator<<(std::ostream& out, const std::vector<std::vector<std::v
         for(int j=0; j<tab[0].size(); j++){
             out << "{";
             for(int k=0; k<tab[0][0].size(); k++){
-                if(typeid(tab[0][0][0]) == typeid(float)){
+                if(typeid(tab[0][0][0]) == typeid(double)){
                     out << std::setw(3);
                 }  
                 out << tab[i][j][k];
@@ -147,5 +185,7 @@ std::vector<std::vector<data_type>> transpose( const std::vector<std::vector<dat
     }
     return ret;
 };
+
+
 
 #endif // FUNKC_H

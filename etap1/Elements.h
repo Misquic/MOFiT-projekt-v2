@@ -8,10 +8,10 @@
 class Node{
 public:
     const Parameters& pm;
-    std::vector<float> pos;  //realna pozycja wezla
+    std::vector<double> pos;  //realna pozycja wezla
 
     const int name;                           //nazwa wezla
-    Node (int name, std::vector<float> pos, const Parameters& pm);  //zwykly konstruktor
+    Node (int name, std::vector<double> pos, const Parameters& pm);  //zwykly konstruktor
     // Node (const Node& other);                 //konstruktor kopiujący
     // Node (Node&& other);                      //konstruktor przenoszący (na wszelki wypadek)
     
@@ -19,8 +19,8 @@ public:
     // Node& operator=(Node&& other);
 
     int getName() const;  //gettery
-    std::vector<float> getPos() const;
-    float getPos(int i) const;
+    std::vector<double> getPos() const;
+    double getPos(int i) const;
 
 };
 
@@ -32,8 +32,8 @@ std::ostream& operator<<(std::ostream& out, const Node node); //do wypisywania, 
 
 class Element{
 public:
-    std::vector<std::vector<float>> S = std::vector<std::vector<float>>(4,std::vector<float>(4));
-    std::vector<std::vector<float>> H = std::vector<std::vector<float>>(4,std::vector<float>(4));
+    std::vector<std::vector<double>> v = std::vector<std::vector<double>>(4, std::vector<double>(4));
+    
     const Parameters& pm;
     std::vector<Node> nodes;                      // kontener na wezly stowarzyszone z elementem(komorka), w element posiada 4 wezly
     const             int name;                   // numer/nazwa elementu
@@ -46,15 +46,15 @@ public:
     // Element& operator=(Element&& other);
 
     int getName() const; //gettery
-    float getA() const;
-    float getAnm() const;
+    double getA() const;
+    double getAnm() const;
     std::vector<Node> getNodes() const;
     Node getNode(int i) const;
-    std::vector<float> ksi2r(float ksi_x, float ksi_y);  //dla konkretnego elementu i ksi wylicz pozycję globalną
-    std::vector<float> ksi2r(float ksi);                 //wrapper gdy podamy tylko jedno ksi
-    
-    
-    void S_filter(); 
+    std::vector<double> ksi2r(double ksi_x, double ksi_y);  //dla konkretnego elementu i ksi wylicz pozycję globalną
+    std::vector<double> ksi2r(double ksi);                 //wrapper gdy podamy tylko jedno ksi
+    int find_local_number(int global_node_name);
+    void countV();
+    // void S_filter(); 
 
 };
 
@@ -71,6 +71,7 @@ public:
     Elements(const Parameters& pm);  //normalny konstruktor
     std::vector<Element> getElements() const; //gettery
     Element getElement(int name) const;
+    void countV();
 };
 
 std::ostream& operator<<(std::ostream& out, const Elements elements); //do wypisywania, zmienic, jesli potrzeba wygodniej wyswietlac
