@@ -134,7 +134,6 @@ double g(double eps1, double eps2, int i_wewn){
     }
 };
 
-
 double f1(double x){
     return (1.0 - x)/2.0;
 };
@@ -227,6 +226,7 @@ std::vector<int> generate_global_boundary_nodes(const Parameters&  pm){
     return boundary_nodes;
 };
 
+// oblicza równanie własne Hc=ESc
 std::pair<std::vector<double>, std::vector<std::vector<double>>> HcESc(
     const std::vector<std::vector<double>>& vecH, 
     const std::vector<std::vector<double>>& vecS) 
@@ -274,6 +274,7 @@ std::pair<std::vector<double>, std::vector<std::vector<double>>> HcESc(
     return {E, v};
 };
 
+// zwraca n najniższych wartości z wektora input
 std::vector<double> fifteen_lowest(const std::vector<double>& input, size_t n) {
     std::vector<double> positiveValues;
     for (double value : input) {
@@ -288,6 +289,7 @@ std::vector<double> fifteen_lowest(const std::vector<double>& input, size_t n) {
     return std::vector<double>(positiveValues.begin(), positiveValues.begin() + n);
 };
 
+// znajduje indeks w wektorze vec, któremu odpowiadająca wartość równa jest value
 int find_index(const std::vector<double>& vec, double value) {
     auto it = std::find(vec.begin(), vec.end(), value);
     if (it != vec.end()) {
@@ -350,6 +352,96 @@ int oom(const std::vector<std::vector<double>>& vec){
     }
     return oom_val;
 }
+
+// obliczanie wektora d w następnym kroku czasowym na podstawie poprzedniego kroku czasowego z Eigen
+std::vector<std::complex<double>> d_tdt_Eigen(
+    const std::vector<std::vector<double>>& vecH, 
+    const std::vector<std::vector<double>>& vecS,
+    const std::vector<complex<double>>& d,
+    double dt){
+
+    if (vecH.size() != vecH[0].size() || vecS.size() != vecS[0].size()) {
+        throw std::invalid_argument("macierze nie są kwadratowe");
+    }
+    if (vecH.size() != vecS.size()) {
+        throw std::invalid_argument("inne wymiary tablic");
+    }
+
+    std::complex<double> constant(0.0,0.5*dt);
+    int n = vecH.size();
+
+    Eigen::MatrixXcd SpH(n, n);
+    Eigen::MatrixXcd SmH(n, n);
+
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            std::complex<double> vH(vecH[i][j],0.0);
+            std::complex<double> vS(vecS[i][j],0.0);
+            SpH(i, j) = vS + constant*vH;
+            SmH(i, j) = vS - constant*vH;
+            }
+    }
+    Eigen::VectorXcd d_eigen(d.size());
+    for (size_t i = 0; i < d.size(); ++i) {
+        d_eigen[i] = std::complex<double>(d[i], 0.0);
+    }
+
+    SmH = SmH.inverse();
+    Eigen::MatrixXcd SmHd = SmH * d_eigen;
+    Eigen::VectorXcd dplusdt = SpH.colPivHouseholderQr().solve(SmHd);
+
+    std::vector<std::complex<double>> Ddt;
+    for (int i = 0; i < dplusdt.size(); ++i) {
+        Ddt.push_back(dplusdt(i));
+        }
+
+    return Ddt;
+};
+
+// obliczanie wektora d w następnym kroku czasowym na podstawie poprzedniego kroku czasowego
+std::vector<std::complex<double>> d_tdt(
+    const std::vector<std::vector<double>>& vecH, 
+    const std::vector<std::vector<double>>& vecS,
+    const std::vector<complex<double>>& d,
+    double dt){
+
+    if (vecH.size() != vecH[0].size() || vecS.size() != vecS[0].size()) {
+        throw std::invalid_argument("macierze nie są kwadratowe");
+    }
+    if (vecH.size() != vecS.size()) {
+        throw std::invalid_argument("inne wymiary tablic");
+    }
+
+    std::complex<double> constant(0.0,0.5*dt);
+    int n = vecH.size();
+    std::vector<std::vector<std::complex<double>>> SpH(n, std::vector<std::complex<double>>(n));
+    std::vector<std::vector<std::complex<double>>> SmH(n, std::vector<std::complex<double>>(n));
+
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            std::complex<double> vH(vecH[i][j],0.0);
+            std::complex<double> vS(vecS[i][j],0.0);
+
+            SpH[i][j] = vS + constant*vH;
+            SmH[j][i] = std::conj(vS - constant*vH); // od razu jest transponowana
+            // i sprzezana, chociaz jest rzeczywista, ale dla formalnosci
+            }
+    }
+
+    std::vector<complex<double>> SpH_d(n);
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            SpH_d[i] += SpH[i][j]*d[j];
+        }}
+
+    std::vector<complex<double>> SmHT_SpH_d(n);
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            SmHT_SpH_d[i] += SmH[i][j]*SpH_d[j];
+        }}
+
+    return SmHT_SpH_d;
+};
 
 // std::vector<double> v_with_E(const std::pair<std::vector<double>, std::vector<std::vector<double>>>& EV, int nty_najnizszy){
 //     std::vector<double> lowest_Es = fifteen_lowest(EV.first, 15);

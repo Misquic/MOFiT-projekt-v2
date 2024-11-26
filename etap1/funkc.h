@@ -56,6 +56,18 @@ std::vector<double> fifteen_lowest(const std::vector<double>& input, size_t n);
 int find_index(const std::vector<double>& vec, double value);
 std::vector<double> v_with_E(const std::pair<std::vector<double>, std::vector<std::vector<double>>>& EV, int nty_najnizszy);
 
+std::vector<std::complex<double>> d_tdt_Eigen(
+const std::vector<std::vector<double>>& vecH, 
+    const std::vector<std::vector<double>>& vecS,
+    const std::vector<float>& d,
+    double dt);
+
+std::vector<std::complex<double>> d_tdt(
+    const std::vector<std::vector<double>>& vecH, 
+    const std::vector<std::vector<double>>& vecS,
+    const std::vector<complex<double>>& d,
+    double dt);
+
 ////////////////////////////////////////////////SZABLONY////////////////////////////////////////////////////////////// (muszą definicjie muszą być w pliku naglowkowym)
 
 
