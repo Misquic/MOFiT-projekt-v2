@@ -52,20 +52,23 @@ std::vector<double> ksi2r(double ksi, int i_kom, const Parameters&  pm);        
 
 std::vector<int> generate_global_boundary_nodes(const Parameters&  pm);
 std::pair<std::vector<double>, std::vector<std::vector<double>>> HcESc(const std::vector<std::vector<double>>& vecH, const std::vector<std::vector<double>>& vecS);
-std::vector<double> fifteen_lowest(const std::vector<double>& input, size_t n);
+std::vector<double> fifteen_lowest(const std::vector<double>& input, size_t n = 15);
 int find_index(const std::vector<double>& vec, double value);
 std::vector<double> v_with_E(const std::pair<std::vector<double>, std::vector<std::vector<double>>>& EV, int nty_najnizszy);
+double X_ji(int j, int i, int i_kom, const Parameters& pm);
+double Y_ji(int j, int i, int i_kom, const Parameters& pm);
+float calculate_T(const std::vector<double>& energies);
 
 std::vector<std::complex<double>> d_tdt_Eigen(
 const std::vector<std::vector<double>>& vecH, 
     const std::vector<std::vector<double>>& vecS,
-    const std::vector<float>& d,
+    const std::vector<std::complex<double>>& d,
     double dt);
 
 std::vector<std::complex<double>> d_tdt(
     const std::vector<std::vector<double>>& vecH, 
     const std::vector<std::vector<double>>& vecS,
-    const std::vector<complex<double>>& d,
+    const std::vector<std::complex<double>>& d,
     double dt);
 
 ////////////////////////////////////////////////SZABLONY////////////////////////////////////////////////////////////// (muszą definicjie muszą być w pliku naglowkowym)
@@ -92,7 +95,7 @@ std::ostream& operator<<(std::ostream& out, const std::vector<data_type>& tab){ 
         }
         out << tab[i];
         if(i!=tab.size()-1){
-                out << " ";
+                out << ", ";
             } 
     }
     out << "\n";
@@ -145,6 +148,19 @@ std::ostream& operator<<(std::ostream& out, const std::vector<std::vector<data_t
         out << "\n";
     }
     return out;
+};
+template <class data_type, class data_type2>
+const std::vector<data_type> operator*(const std::vector<data_type>& tab, data_type2 val){ //mnozenie 2D przez wartość
+    std::vector<data_type>ret = tab;
+    for(int i=0; i<tab.size(); i++){
+        ret[i]*=val;
+        
+    }
+    return ret;
+};
+template <class data_type, class data_type2>
+const std::vector<data_type> operator*(data_type2 val, const std::vector<data_type>& tab){ //mnozenie 2D przez wartość
+    return tab*val;
 };
 template <class data_type, class data_type2>
 const std::vector<std::vector<data_type>> operator*(const std::vector<std::vector<data_type>>& tab, data_type2 val){ //mnozenie 2D przez wartość

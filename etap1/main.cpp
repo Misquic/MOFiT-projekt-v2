@@ -8,19 +8,19 @@
 
 
 int main(int argc, char* argv[]){
-    int N;
+    int N = 2;
+    double Lnm = 100; // dlugosc boku calego ukladu nm
     if(argc>1){
         N = atof(argv[1]);
+        if(argc>2){
+            Lnm = atof(argv[2]);
+        }
     }
-    else{
-        N   = 2;    // liczba kwadratow
-    }
-    std::cout << "N: " << N << std::endl;
-    double Lnm = 100;         // dlugosc boku calego ukladu nm
+    //std::cout << "N: " << N << std::endl;
+    //double Lnm = 100;  
     Parameters pm(N, Lnm);
     Elements elements(pm); //PODSTAWOWA SIATKA NA KTOREJ PRACUJEMY
     elements.countV();
-    std::cout << "tu\n";
 
     //macierz przekrywania
     std::vector<std::vector<double>> s = std::vector<std::vector<double>>(4, std::vector<double>(4));
@@ -35,44 +35,45 @@ int main(int argc, char* argv[]){
             v[j-1][i-1] = v_ji(j,i, 11, pm);
         }
     }
-    std::cout << "s: \n" << s*(4.0/pm.a/pm.a*9.0);
-    std::cout << "t: \n" << t*(6.0*2.0*pm.m);
-    std::cout << "v: \n" << v*(1/v[0][0])*4;//*(8.0/pm.a/pm.a/pm.m/pm.omega/pm.omega)*; 
+    //std::cout << "s: \n" << s*(4.0/pm.a/pm.a*9.0);
+    //std::cout << "t: \n" << t*(6.0*2.0*pm.m);
+    //std::cout << "v: \n" << v*(1/v[0][0])*4;//*(8.0/pm.a/pm.a/pm.m/pm.omega/pm.omega)*; 
 
     std::vector<Element> els = elements.getElements();
     //std::cout << elements;
 
     std::string file_name = "./results/results2.csv";
     std::ofstream file;
-    file.open(file_name);
-    if(!file.is_open()){
-        std::cerr << "nie udalo sie otworzyc pliku " + file_name;
-        return 0;
-    }
+    // file.open(file_name);
+    // if(!file.is_open()){
+    //     std::cerr << "nie udalo sie otworzyc pliku " + file_name;
+    //     return 0;
+    // }
 
-    //liczenie psi zad 2
-    std::vector<double> pos(2);
-    for(Element& el: elements.getElements()){
-        std::cout <<"\r             \r" << el.getName();
-        double ksi_x = -1.0;
-        while(ksi_x < 1.0){
-            double ksi_y = -1.0;
-            while(ksi_y < 1.0){
-                double x = 0;
-                double y = 0;
-                double psi = 0;
-                pos = el.ksi2r(ksi_x, ksi_y);
-                for(int i_wewn = 1; i_wewn < 5; i_wewn++){
-                    psi+=calcPsi(el.getNode(i_wewn).getPos()[0], el.getNode(i_wewn).getPos()[1], pm)*g(ksi_x, ksi_y, i_wewn);
-                }
-                file << "\n" << pos[0] << "," << pos[1] <<","<< psi;
-                ksi_y+=pm.d_ksi;
-            }
-            file.flush();
-            ksi_x+=pm.d_ksi;
-        }
-    }
-    std::cout << "\n";
+    // //liczenie psi zad 2
+    // std::vector<double> pos(2);
+    // for(Element& el: elements.getElements()){
+    //     std::cout <<"\r             \r" << el.getName();
+    //     double ksi_x = -1.0;
+    //     while(ksi_x < 1.0){
+    //         double ksi_y = -1.0;
+    //         while(ksi_y < 1.0){
+    //             double x = 0;
+    //             double y = 0;
+    //             double psi = 0;
+    //             pos = el.ksi2r(ksi_x, ksi_y);
+    //             for(int i_wewn = 1; i_wewn < 5; i_wewn++){
+    //                 psi+=calcPsi(el.getNode(i_wewn).getPos()[0], el.getNode(i_wewn).getPos()[1], pm)*g(ksi_x, ksi_y, i_wewn);
+    //             }
+    //             file << "\n" << pos[0] << "," << pos[1] <<","<< psi;
+    //             ksi_y+=pm.d_ksi;
+    //         }
+    //         file.flush();
+    //         ksi_x+=pm.d_ksi;
+    //     }
+    // }
+    // file.close();
+    // std::cout << "\n";
     // (x,y) ksi2r(numer wezla, ksix, ksiy)
 
     //Towrzenie globalnych macierzy S i H
@@ -90,12 +91,11 @@ int main(int argc, char* argv[]){
         }
     }
 
-    std::cout << "Macierze S i H przed narzuceniem warunków brzegowych:\n";
-    std::cout << "S:\n" << S;
-    std::cout << "H:\n" << H;
+    //std::cout << "Macierze S i H przed narzuceniem warunków brzegowych:\n";
+    //std::cout << "S:\n" << S;
+    //std::cout << "H:\n" << H;
     //warunki brzegowe
     std::vector<int> boundary_nodes = generate_global_boundary_nodes(pm);
-    std::cout << boundary_nodes << "\n";
     for(int& node_name: boundary_nodes){
         for(int n = 0; n < S.size(); n++){
             S[node_name -1][n] = 0.0;
@@ -108,21 +108,68 @@ int main(int argc, char* argv[]){
             //std::cout << "tu\n";
         }
     }   
-    std::cout << "Macierze S i H po narzuceniu warunków brzegowych:\n";
-    std::cout << "S:\n" << S;
-    std::cout << "H:\n" << H;
+    //std::cout << "Macierze S i H po narzuceniu warunków brzegowych:\n";
+    //std::cout << "S:\n" << S;
+    //std::cout << "H:\n" << H;
     
-    std::cout << "HcESc \n";
+    //std::cout << "HcESc \n";
     auto ret = HcESc(H, S);
-    std::cout<< ret.first << "\n";
-    std::cout<< ret.second << "\n";
+    std::vector<double> E = ret.first;
+    std::vector<std::vector<double>> v_wlasne = ret.second;
+    //std::cout << "E:\n" << E *(-38368355.4492188/(-1410)) << "\n";
+    //std::cout << "v:\n" << v << "\n";
+
+    std::vector<double> fifteen = fifteen_lowest(E);
+    //zad5
+    file_name = "./results/results5.txt";
+    file.open(file_name, std::ios_base::app);
+    if(!file.is_open()){
+        std::cerr << "nie udalo sie otworzyc pliku " + file_name;
+        return 0;
+    }
+    file << pm.N <<"," << pm.Lnm << "," << fifteen;
+    
+
+    
+
+
+///////////////////////////////////////////////////
+    // //zad6
+    // std::string file_name = "./results/results6_L_" + std::to_string(pm.Lnm) + "_N_" + std::to_string(pm.N);
+    // std::ofstream file;
+    // file.open(file_name);
+    // if(!file.is_open()){
+    //     std::cerr << "nie udalo sie otworzyc pliku " + file_name;
+    //     return 0;
+    // }
+    // // c_n = 
+
+    // std::vector<double> pos(2);
+    // for(Element& el: elements.getElements()){
+    //     std::cout <<"\r             \r" << el.getName();
+    //     double ksi_x = -1.0;
+    //     while(ksi_x < 1.0){
+    //         double ksi_y = -1.0;
+    //         while(ksi_y < 1.0){
+    //             double x = 0;
+    //             double y = 0;
+    //             double psi = 0;
+    //             pos = el.ksi2r(ksi_x, ksi_y);
+    //             for(int i_wewn = 1; i_wewn < 5; i_wewn++){
+    //                 psi+=el.getPsi(i_wewn)*g(ksi_x, ksi_y, i_wewn);
+    //                 // wzór z zad2: psi+=calcPsi(el.getNode(i_wewn).getPos()[0], el.getNode(i_wewn).getPos()[1], pm)*g(ksi_x, ksi_y, i_wewn);
+    //             }
+    //             file << "\n" << pos[0] << "," << pos[1] <<","<< psi;
+    //             ksi_y+=pm.d_ksi;
+    //         }
+    //         file.flush();
+    //         ksi_x+=pm.d_ksi;
+    //     }
+    // }
+
 
 }
 
-// vcpkg install eigen3
-// conan install eigen/3.3.9@
 
-// using namespace std;
-// using namespace Eigen;
 
 

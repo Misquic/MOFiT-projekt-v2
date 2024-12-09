@@ -69,6 +69,7 @@ int Element::find_local_number(int global_node_name){
     std::cout << "Nie znaleziono numeru lokalnego dla podanego globalnego węzła\n";
     return -1;
 };
+
 void Element::countV(){
     for(int j = 1; j <= 4; j++){
         for(int i = 1; i <= 4; i++){
@@ -80,31 +81,6 @@ void Element::countV(){
         }
     }
 }
-
-
-// void Element::S_filter(){
-//     std::vector<Node> global_nodes_in_this_element = this->getNodes();
-
-//     static std::vector<int> boundary_nodes(8*pm.N);
-//     boundary_nodes = generate_global_boundary_nodes(pm);
-
-//     for(int i = 0; i < 4; i++){
-//         if(in(global_nodes_in_this_element[i].name, boundary_nodes)){
-//             std::cout << global_nodes_in_this_element[i].name << "\n";
-//             int local_node_number = this->find_local_number(global_nodes_in_this_element[i].name);
-            
-//             for(int n = 0; n < 4; n++){
-//                 S[local_node_number -1][n] = 0.0;
-//                 S[n][local_node_number-1] = 0.0;
-//                 H[local_node_number-1][n] = 0.0;
-//                 H[n][local_node_number-1] = 0.0;
-//                 H[local_node_number][local_node_number] = -1410.0;
-//                 //std::cout << "tu\n";
-//             }
-//         }
-//     }
-
-// }
 
 std::ostream& operator<<(std::ostream& out, const Element element){
     out << "el: " << element.name << "\n";

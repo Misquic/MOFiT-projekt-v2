@@ -1,6 +1,5 @@
 #include "Parameters.h"
 
-
 double nm2au(double nm){
     return nm*18.89726133921252;
 };

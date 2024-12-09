@@ -5,6 +5,8 @@
 #include <cmath>
 #include "Eigen/Dense"
 #include "Eigen/Eigenvalues"
+#include "math.h"
+#define _USE_MATH_DEFINES
 using namespace Eigen;
 
 int nlg_fun(int i_kom, int i_wewn, int N){ //zwraca numer wezla globalnie z numeru komorki i numeru wezla lokalnego
@@ -283,9 +285,11 @@ std::vector<double> fifteen_lowest(const std::vector<double>& input, size_t n) {
         }
     }
     if (positiveValues.size() < n) {
-        throw std::runtime_error("Za mało dodatnich wartości w wektorze!");
+        for(int i = positiveValues.size(); i < n; i++){
+            positiveValues.push_back(0.0);
+        }
     }
-    std::sort(positiveValues.begin(), positiveValues.end());
+    // std::sort(positiveValues.begin(), positiveValues.end());
     return std::vector<double>(positiveValues.begin(), positiveValues.begin() + n);
 };
 
@@ -357,7 +361,7 @@ int oom(const std::vector<std::vector<double>>& vec){
 std::vector<std::complex<double>> d_tdt_Eigen(
     const std::vector<std::vector<double>>& vecH, 
     const std::vector<std::vector<double>>& vecS,
-    const std::vector<complex<double>>& d,
+    const std::vector<std::complex<double>>& d,
     double dt){
 
     if (vecH.size() != vecH[0].size() || vecS.size() != vecS[0].size()) {
@@ -383,7 +387,7 @@ std::vector<std::complex<double>> d_tdt_Eigen(
     }
     Eigen::VectorXcd d_eigen(d.size());
     for (size_t i = 0; i < d.size(); ++i) {
-        d_eigen[i] = std::complex<double>(d[i], 0.0);
+        d_eigen[i] = std::complex<double>(d[i]);
     }
 
     SmH = SmH.inverse();
@@ -402,7 +406,7 @@ std::vector<std::complex<double>> d_tdt_Eigen(
 std::vector<std::complex<double>> d_tdt(
     const std::vector<std::vector<double>>& vecH, 
     const std::vector<std::vector<double>>& vecS,
-    const std::vector<complex<double>>& d,
+    const std::vector<std::complex<double>>& d,
     double dt){
 
     if (vecH.size() != vecH[0].size() || vecS.size() != vecS[0].size()) {
@@ -428,19 +432,53 @@ std::vector<std::complex<double>> d_tdt(
             }
     }
 
-    std::vector<complex<double>> SpH_d(n);
+    std::vector<std::complex<double>> SpH_d(n);
     for (int i = 0; i < n; ++i) {
         for (int j = 0; j < n; ++j) {
             SpH_d[i] += SpH[i][j]*d[j];
         }}
 
-    std::vector<complex<double>> SmHT_SpH_d(n);
+    std::vector<std::complex<double>> SmHT_SpH_d(n);
     for (int i = 0; i < n; ++i) {
         for (int j = 0; j < n; ++j) {
             SmHT_SpH_d[i] += SmH[i][j]*SpH_d[j];
         }}
 
     return SmHT_SpH_d;
+};
+
+double X_ji(int j, int i, int i_kom, const Parameters& pm){
+    double suma = 0;
+
+    for(int l = 1; l <= 3; l++){
+        for(int n = 1; n <= 3; n++){
+            
+            suma += g(pm.p[l-1],pm.p[n-1],i) * ksi2r(pm.p[l-1], i_kom, pm)[0];
+            //std::cout << i << " "<< j << " "<< l << " "<< n << " " << suma << "\n";
+        };
+    };
+    return suma;
+};
+
+double Y_ji(int j, int i, int i_kom, const Parameters& pm){
+    double suma = 0;
+
+    for(int l = 1; l <= 3; l++){
+        for(int n = 1; n <= 3; n++){
+            
+            suma += g(pm.p[l-1],pm.p[n-1],j) * ksi2r(pm.p[l-1], i_kom, pm)[1];
+            // g(pm.p[l-1],pm.p[n-1],i) +  + ksi2r(pm.p[n-1], i_kom, pm)[1])
+            //std::cout << i << " "<< j << " "<< l << " "<< n << " " << suma << "\n";
+        };
+    };
+    return suma;
+};
+
+float calculate_T(const std::vector<double>& energies){
+    std::vector<double> es = fifteen_lowest(energies, 2);
+    float deltaE = es[2]-es[1];
+     
+    return 2.0*3.14159265359/deltaE;
 };
 
 // std::vector<double> v_with_E(const std::pair<std::vector<double>, std::vector<std::vector<double>>>& EV, int nty_najnizszy){

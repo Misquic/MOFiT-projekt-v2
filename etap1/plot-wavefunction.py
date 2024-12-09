@@ -5,7 +5,8 @@ import csv
 au = 0.05292
 nm_au = 1/au
 
-data = np.loadtxt("results/results2.csv", delimiter = ",")
+x = input("Podaj nazwę pliku: ")
+data = np.loadtxt("results/"+x, delimiter = ",")
 
 x = np.round(data[:, 0]*au, 2)
 y = np.round(data[:, 1]*au, 2)

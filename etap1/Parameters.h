@@ -18,6 +18,7 @@ public:
     const double a; 
     const std::vector<double> w = {5.0/9.0, 8.0/9.0, 5.0/9.0};
     const std::vector<double> p = {-sqrtf(3.0/5.0), 0, sqrtf(3.0/5.0)};
+    const float dt = 100;
 
     Parameters(int N, double Lnm);
 
