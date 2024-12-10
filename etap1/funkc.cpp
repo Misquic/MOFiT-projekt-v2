@@ -272,6 +272,7 @@ std::pair<std::vector<double>, std::vector<std::vector<double>>> HcESc(
         }
         v.push_back(column);
     }
+    std::cout << "E:\n" << eigenvalues << "\nvectors:\n" << eigenvectors << "\n"; 
 
     return {E, v};
 };
@@ -280,7 +281,7 @@ std::pair<std::vector<double>, std::vector<std::vector<double>>> HcESc(
 std::vector<double> fifteen_lowest(const std::vector<double>& input, size_t n) {
     std::vector<double> positiveValues;
     for (double value : input) {
-        if (value > 0) {
+        if (value > 0 && !in(value, positiveValues)) {
             positiveValues.push_back(value);
         }
     }
@@ -292,7 +293,6 @@ std::vector<double> fifteen_lowest(const std::vector<double>& input, size_t n) {
     // std::sort(positiveValues.begin(), positiveValues.end());
     return std::vector<double>(positiveValues.begin(), positiveValues.begin() + n);
 };
-
 // znajduje indeks w wektorze vec, któremu odpowiadająca wartość równa jest value
 int find_index(const std::vector<double>& vec, double value) {
     auto it = std::find(vec.begin(), vec.end(), value);
@@ -302,6 +302,20 @@ int find_index(const std::vector<double>& vec, double value) {
         return -1;
     }
 };
+std::vector<int> find_lowest_indexes(const std::vector<double>& input, size_t n){
+    std::vector<double> lowest = fifteen_lowest(input, n);
+    std::vector<int> indexes;
+    indexes.reserve(n);
+    for(double val: lowest){
+        int ind = find_index(input, val);
+        if(ind < 0){
+
+            throw std::out_of_range("found index is out of range for val: " + std::to_string(val));
+        }
+        indexes.push_back(ind);
+    }
+    return indexes;
+}
 
 int oom(double x){ // to get order of magnitude // nie działa dla ujemnych i poniżej 1 
     int oom_val = 0;

@@ -54,6 +54,7 @@ std::vector<int> generate_global_boundary_nodes(const Parameters&  pm);
 std::pair<std::vector<double>, std::vector<std::vector<double>>> HcESc(const std::vector<std::vector<double>>& vecH, const std::vector<std::vector<double>>& vecS);
 std::vector<double> fifteen_lowest(const std::vector<double>& input, size_t n = 15);
 int find_index(const std::vector<double>& vec, double value);
+std::vector<int> find_lowest_indexes(const std::vector<double>& input, size_t n = 6);
 std::vector<double> v_with_E(const std::pair<std::vector<double>, std::vector<std::vector<double>>>& EV, int nty_najnizszy);
 double X_ji(int j, int i, int i_kom, const Parameters& pm);
 double Y_ji(int j, int i, int i_kom, const Parameters& pm);
@@ -107,7 +108,7 @@ template <class data_type>
 std::ostream& operator<<(std::ostream& out, const std::vector<std::vector<data_type>>& tab){ //wypisywanie wektorów dwuwymiarowych
 
     int max_oom = oom(tab);
-    std::cout << "max_oom: " << max_oom << "\n";
+    //std::cout << "max_oom: " << max_oom << "\n";
     
     if(std::abs(max_oom) < oom(tab.size())){
         max_oom = oom(tab.size());

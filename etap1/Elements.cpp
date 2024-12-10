@@ -111,7 +111,8 @@ Element Elements::getElement(int i_kom) const{
 
 std::ostream& operator<<(std::ostream& out, const Elements elements){
     for(int i_kom = 1; i_kom <= elements.getElements().size(); i_kom++){
-        out << "Element ikom: "<< i_kom << "\n" << elements.getElement(i_kom) << "\n";
+        // out << "Element ikom: "<< i_kom << "\n" << elements.getElement(i_kom) << "\n";
+        out << elements.getElement(i_kom) << "\n";
     }
     return out;
 
@@ -121,4 +122,5 @@ void Elements::countV(){
     for(Element& el: elements){
         el.countV();
     }
-}
+};
+
